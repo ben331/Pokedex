@@ -31,12 +31,12 @@
         android:layout_marginTop="6dp"
         android:layout_marginEnd="4dp"
         android:text="@string/watch_btn"
-        app:layout_constraintEnd_toStartOf="@+id/catchBtn"
+        app:layout_constraintEnd_toStartOf="@+id/homeCatchBtn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchTxt" />
 
     <Button
-        android:id="@+id/catchBtn"
+        android:id="@+id/homeCatchBtn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"

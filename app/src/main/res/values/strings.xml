@@ -26,6 +26,7 @@
     <string name="skill_life">Life</string>
 
     //Alerts
+    <string name="not_founded">Pokemon not founded</string>
     <string name="alert_exit">want to leave Pokedex?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

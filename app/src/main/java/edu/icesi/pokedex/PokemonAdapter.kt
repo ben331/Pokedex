@@ -32,6 +32,11 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
         listener.show(pokemon)
     }
 
+    fun addPokemon(pokemon:Pokemon, refresh:Boolean){
+        pokedex.add(pokemon)
+        if(refresh) notifyItemInserted(pokedex.size-1)
+    }
+
     fun delete(pokemon: Pokemon) {
         val index = pokedex.indexOf(pokemon)
         pokedex.removeAt(index)
