@@ -19,6 +19,7 @@
     <string name="default_name">Unknown</string>
     <string name="default_type">(Type)</string>
     <string name="default_skill">0</string>
+    <string name="default_date">April 4th, 2022</string>
     <string name="skill_defense">Defense</string>
     <string name="skill_attack">Attack</string>
     <string name="skill_speed">Speed</string>
