@@ -32,9 +32,9 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
         listener.show(pokemon)
     }
 
-    fun addPokemon(pokemon:Pokemon, refresh:Boolean){
+    fun addPokemon(pokemon:Pokemon){
         pokedex.add(pokemon)
-        if(refresh) notifyItemInserted(pokedex.size-1)
+        notifyItemInserted(pokedex.size-1)
     }
 
     fun delete(pokemon: Pokemon) {

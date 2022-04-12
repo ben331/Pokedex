@@ -54,7 +54,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
 
         binding.homeCatchBtn.setOnClickListener{
             val pokemon = request(binding.searchTxt.text.toString())
-            if(pokemon!=null) adapter.addPokemon(pokemon, true)
+            if(pokemon!=null) adapter.addPokemon(pokemon)
         }
 
         binding.searchBtn.setOnClickListener{
@@ -85,8 +85,13 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
     }
 
     private fun onResult(result: ActivityResult) {
-        val json = result.data?.extras?.getString("pokemon","NO_DATA")
-        if(json!="NO_DATA") adapter.delete(Gson().fromJson(json, Pokemon::class.java))
+        val type = result.data?.extras?.getInt("type",-1)
+        val pokemon = Gson().fromJson(result.data?.extras?.getString("pokemon","NO_DATA"), Pokemon::class.java)
+        when(type){
+            OLD_POKEMON-> adapter.addPokemon(pokemon)
+            NEW_POKEMON-> adapter.delete(pokemon)
+            else -> Toast.makeText(this,R.string.not_founded, Toast.LENGTH_SHORT).show()
+        }
     }
 
     //-----------------------------------------------   CLOSE APP   ---------------------------------------------
