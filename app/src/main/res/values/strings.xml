@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">Pokedex</string>
+
+    //Login_activity
+    <string name="login_title">POKEDEX</string>
+    <string name="login_caption">Pokemon trainer username</string>
+    <string name="holder_username">Username</string>
+    <string name="login_btn">LOGIN</string>
+
+    //Home
+    <string name="watch_btn">Watch</string>
+    <string name="Catch_btn">Catch</string>
+    <string name="home_title">My pokemons</string>
+    <string name="holder_search">Search</string>
+    <string name="holder_catch">Catch a pokemon</string>
+
+    //Statistics
+    <string name="drop_btn">Drop</string>
+    <string name="default_name">Unknown</string>
+    <string name="default_type">(Type)</string>
+    <string name="default_skill">0</string>
+    <string name="skill_defense">Defense</string>
+    <string name="skill_attack">Attack</string>
+    <string name="skill_speed">Speed</string>
+    <string name="skill_life">Life</string>
 </resources>
