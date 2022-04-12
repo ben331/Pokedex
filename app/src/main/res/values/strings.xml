@@ -24,4 +24,9 @@
     <string name="skill_attack">Attack</string>
     <string name="skill_speed">Speed</string>
     <string name="skill_life">Life</string>
+
+    //Alerts
+    <string name="alert_exit">want to leave Pokedex?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
