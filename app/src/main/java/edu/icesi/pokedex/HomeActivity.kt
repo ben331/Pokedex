@@ -76,7 +76,8 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         val url = "${Constants.BASE_URL}/pokemon/${pokemonName}"
         val stringRequest = StringRequest(Request.Method.GET, url,
             { response ->
-
+                val pokemon = Gson().fromJson(response, Pokemon::class.java)
+                recreate(pokemon, OLD_POKEMON)
             },
             { })
 
@@ -109,7 +110,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
 
                 //Send Pokemon to FIREBASE
                 putPokemon(pokemon)
-                if(toShow) show(pokemon, NEW_POKEMON) else recreate(pokemon)
+                if(toShow) show(pokemon, NEW_POKEMON) else recreate(pokemon, NEW_POKEMON)
             },
             {
                 val msg = "Error: ${R.string.not_founded}:\n\n${it.message}"
@@ -120,11 +121,11 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         queue.add(stringRequest)
     }
 
-    private fun recreate(pokemon: Pokemon) {
+    private fun recreate(pokemon: Pokemon, type:Int) {
         val imgRequest = ImageRequest(pokemon.imgUrl,
             {
                 pokemon.imgBitmap = it
-                adapter.addPokemon(pokemon)
+                if(type== NEW_POKEMON) adapter.addPokemon(pokemon)
             }, 0,0, ImageView.ScaleType.CENTER, null,
             {
                 val msg = "Img not founded. Error:\n\n${it.message}"
