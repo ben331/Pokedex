@@ -87,6 +87,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
             }
         )
+        queue.add(stringRequest)
     }
 
     private fun requestOldPokemon(pokemonName:String):Pokemon?{
