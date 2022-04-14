@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.loginBtn.setOnClickListener{
-            val url = "${Constants.BASE_URL}/users/${binding.username.text}"
+            val url = "${Constants.BASE_URL}/users/${binding.username.text}.json"
             val stringRequest = StringRequest(Request.Method.GET, url, ::onResultUserRequest, ::onErrorRequest)
             queue.add(stringRequest)
         }
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onErrorRequest(volleyError: VolleyError?){
-        val url = "${Constants.BASE_URL}/users/${binding.username.text}"
+        val url = "${Constants.BASE_URL}/users/${binding.username.text}.json"
         if(volleyError?.networkResponse?.statusCode==404){
             val user = User(binding.username.text.toString())
             val jsonObj = JSONObject(Gson().toJson(user))

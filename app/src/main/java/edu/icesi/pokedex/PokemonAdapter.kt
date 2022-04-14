@@ -3,7 +3,9 @@ package edu.icesi.pokedex
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.toolbox.StringRequest
 import edu.icesi.pokedex.model.Pokemon
+import edu.icesi.pokedex.model.SingleLoggedUser
 
 class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPokemon {
 

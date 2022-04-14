@@ -58,6 +58,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         binding.pokemonList.setHasFixedSize(true)
         binding.pokemonList.adapter = adapter
         adapter.listener = this
+        loadPokemons()
 
         binding.watchBtn.setOnClickListener{
            requestNewPokemon(binding.searchTxt.text.toString(), true)
@@ -72,9 +73,25 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         }
     }
 
+    private fun loadPokemons(){
+        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user?.username}.json"
+        val stringRequest = StringRequest(Request.Method.GET, url,
+            { response->
+                val hashmap = JSONObject(response)
+                for(key in hashmap.keys()){
+                    val pokemon = Gson().fromJson(hashmap.get(key).toString(), Pokemon::class.java)
+                    recreate(pokemon, NEW_POKEMON)
+                }
+            },{
+                val msg = "Error :\n\n${it.message}"
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+            }
+        )
+    }
+
     private fun requestOldPokemon(pokemonName:String):Pokemon?{
         // Request a string response from the provided URL.
-        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user!!.username}/${pokemonName}"
+        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user!!.username}/${pokemonName}.json"
         val stringRequest = StringRequest(Request.Method.GET, url,
             { response ->
                 val pokemon = Gson().fromJson(response, Pokemon::class.java)
