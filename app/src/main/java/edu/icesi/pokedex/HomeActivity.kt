@@ -20,6 +20,7 @@ import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import edu.icesi.pokedex.databinding.ActivityHomeBinding
 import edu.icesi.pokedex.model.Pokemon
+import edu.icesi.pokedex.model.SingleLoggedUser
 import org.json.JSONObject
 
 class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
@@ -102,11 +103,9 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
                 val speed = stat?.getJSONObject(5)?.optInt("base_stat")
                 val date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Calendar.getInstance().time
-                } else {
-                    TODO("VERSION.SDK_INT < N")
-                }
+                } else TODO("VERSION.SDK_INT < N")
 
-                val pokemon = Pokemon(name!!, type!!, img!!, hp!!, attack!!, defense!!, speed!!, date, null)
+                val pokemon = Pokemon(name!!, type!!, img!!, hp!!, attack!!, defense!!, speed!!, date, null, SingleLoggedUser.user!!.username)
 
                 //Send Pokemon to FIREBASE
                 putPokemon(pokemon)
