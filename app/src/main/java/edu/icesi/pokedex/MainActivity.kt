@@ -3,10 +3,7 @@ package edu.icesi.pokedex
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.KeyEvent
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import com.android.volley.NetworkResponse
 import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
@@ -35,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.loginBtn.setOnClickListener{
-            val url = "${Constants.BASE_URL}/${binding.username.text}"
+            val url = "${Constants.BASE_URL}/users/${binding.username.text}"
             val stringRequest = StringRequest(Request.Method.GET, url, ::onResultUserRequest, ::onErrorRequest)
             queue.add(stringRequest)
         }
@@ -47,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onErrorRequest(volleyError: VolleyError?){
-        val url = "${Constants.BASE_URL}/${binding.username.text}"
+        val url = "${Constants.BASE_URL}/users/${binding.username.text}"
         if(volleyError?.networkResponse?.statusCode==404){
             val user = User(binding.username.text.toString())
             val jsonObj = JSONObject(Gson().toJson(user))

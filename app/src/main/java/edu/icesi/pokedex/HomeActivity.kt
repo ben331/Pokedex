@@ -74,7 +74,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
 
     private fun requestOldPokemon(pokemonName:String):Pokemon?{
         // Request a string response from the provided URL.
-        val url = "${Constants.BASE_URL}/pokemon/${pokemonName}"
+        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user!!.username}/${pokemonName}"
         val stringRequest = StringRequest(Request.Method.GET, url,
             { response ->
                 val pokemon = Gson().fromJson(response, Pokemon::class.java)
@@ -135,7 +135,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
     }
 
     private fun putPokemon(pokemon: Pokemon) {
-        val url = "${Constants.BASE_URL}/pokemon/${pokemon.name}.json"
+        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user?.username}/${pokemon.name}.json"
         val jsonObj = JSONObject(Gson().toJson(pokemon))
         val objRequest = JsonObjectRequest(Request.Method.PUT, url, jsonObj,{
             Toast.makeText(this,"Pokemon was send successfully", Toast.LENGTH_LONG).show()
