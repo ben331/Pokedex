@@ -19,7 +19,8 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
 
     override fun onBindViewHolder(holder: PokemonView, position: Int) {
        val pokemon = pokedex[position]
-        holder.itemPokemonImg.setImageBitmap(pokemon.image)
+
+        holder.itemPokemonImg.setImageBitmap(pokemon.imgBitmap!!)
         holder.itemPokemonName.text = pokemon.name
         holder.pokemonDate.text = pokemon.date.toString()
     }

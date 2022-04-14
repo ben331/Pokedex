@@ -1,9 +1,15 @@
 package edu.icesi.pokedex
 
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.Toast
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.ImageRequest
+import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import edu.icesi.pokedex.databinding.ActivityPokemonBinding
 import edu.icesi.pokedex.model.Pokemon
@@ -13,6 +19,11 @@ class PokemonActivity : AppCompatActivity() {
     //Binding
     private var _binding : ActivityPokemonBinding?=null
     private val binding get() = _binding!!
+
+    //RequestQueue of Volley
+    private val queue = Volley.newRequestQueue(this)
+
+    private lateinit var pokemon:Pokemon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,26 +40,41 @@ class PokemonActivity : AppCompatActivity() {
             else -> comeBack( -1, null) //Impossible case
         }
 
-        val pokemon = Gson().fromJson(json, Pokemon::class.java)
+        pokemon = Gson().fromJson(json, Pokemon::class.java)
 
         //Binding-----------------------------------------------------------
-        binding.pokemonImg.setImageBitmap(pokemon.image)
         binding.pokemonName.text = pokemon.name
         binding.pokemonType.text = pokemon.type
         (pokemon.defense.toString()).also { binding.defenseTxt.text = it }
         (pokemon.attack.toString()).also { binding.attackTxt.text = it }
         (pokemon.speed.toString()).also { binding.speedTxt.text = it }
-        (pokemon.life.toString()).also { binding.lifeTxt.text = it }
+        (pokemon.hp.toString()).also { binding.lifeTxt.text = it }
+
+        //LoadImg
+        val imgRequest = ImageRequest(pokemon.imgUrl, ::imgResponse, 0,0, ImageView.ScaleType.CENTER, null, ::errorResponse)
+        queue.add(imgRequest)
 
         //Functions--------------------------------------------------------
         binding.pokemonCatchBtn.setOnClickListener{comeBack(HomeActivity.NEW_POKEMON, pokemon)}
         binding.dropBtn.setOnClickListener{comeBack(HomeActivity.OLD_POKEMON, pokemon)}
     }
 
-    private fun comeBack(type:Int, pokemon:Pokemon?,){
+    private fun imgResponse(bitmap: Bitmap?) {
+        binding.pokemonImg.setImageBitmap(bitmap)
+        pokemon.imgBitmap = bitmap
+    }
+
+    private fun errorResponse(volleyError: VolleyError?) {
+        val msg = "Img not founded. Error:\n\n${volleyError?.message}"
+        Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
+    }
+
+
+    private fun comeBack(type:Int, pokemon:Pokemon?){
         val intent = Intent(this, HomeActivity::class.java).apply {
             putExtra("type", type)
             putExtra("pokemon", Gson().toJson(pokemon))
         }
+        startActivity(intent)
     }
 }
