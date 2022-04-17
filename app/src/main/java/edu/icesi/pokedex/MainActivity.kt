@@ -3,8 +3,10 @@ package edu.icesi.pokedex
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.android.volley.Request
+import com.android.volley.RequestQueue
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
@@ -22,10 +24,12 @@ class MainActivity : AppCompatActivity() {
     private val binding get() = _binding!!
 
     //RequestQueue of Volley
-    private val queue = Volley.newRequestQueue(this)
+    private lateinit var queue: RequestQueue
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        queue = Volley.newRequestQueue(this)
 
         //Binding
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -39,14 +43,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onResultUserRequest(response: String?){
-        val user = Gson().fromJson(response, User::class.java)
-        log(user)
-    }
-
-    private fun onErrorRequest(volleyError: VolleyError?){
-        val url = "${Constants.BASE_URL}/users/${binding.username.text}.json"
-        if(volleyError?.networkResponse?.statusCode==404){
-            val user = User(binding.username.text.toString())
+        var user = Gson().fromJson(response, User::class.java)
+        if(user==null){
+            user = User(binding.username.text.toString())
+            val url = "${Constants.BASE_URL}/users/${binding.username.text}.json"
             val jsonObj = JSONObject(Gson().toJson(user))
             val objectRequest = JsonObjectRequest(Request.Method.PUT, url, jsonObj, {
                 log(user)
@@ -54,9 +54,17 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val msg = "Error: ${R.string.not_founded}:\n\n${it.message}"
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                Log.e(">>>>>>>>", msg)
             }
             queue.add(objectRequest)
         }
+        log(user)
+    }
+
+    private fun onErrorRequest(volleyError: VolleyError?){
+        val msg = "Error: ${R.string.not_founded}:\n\n${volleyError?.message}"
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+        Log.e(">>>>>>>>", msg)
     }
 
     private fun log(user:User){

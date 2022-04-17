@@ -12,7 +12,7 @@
     <string name="Catch_btn">Catch</string>
     <string name="home_title">My pokemons</string>
     <string name="holder_search">Search</string>
-    <string name="holder_catch">Catch a pokemon</string>
+    <string name="holder_catch">Name or number: pikachu, charizard, 36, 179</string>
 
     //Statistics
     <string name="drop_btn">Drop</string>

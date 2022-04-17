@@ -4,9 +4,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import com.android.volley.RequestQueue
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.ImageRequest
 import com.android.volley.toolbox.Volley
@@ -21,12 +25,15 @@ class PokemonActivity : AppCompatActivity() {
     private val binding get() = _binding!!
 
     //RequestQueue of Volley
-    private val queue = Volley.newRequestQueue(this)
+    private lateinit var queue : RequestQueue
 
     private lateinit var pokemon:Pokemon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Volley
+        queue = Volley.newRequestQueue(this)
 
         //Binding
         _binding = ActivityPokemonBinding.inflate(layoutInflater)
@@ -51,7 +58,12 @@ class PokemonActivity : AppCompatActivity() {
         (pokemon.hp.toString()).also { binding.lifeTxt.text = it }
 
         //LoadImg
-        val imgRequest = ImageRequest(pokemon.imgUrl, ::imgResponse, 0,0, ImageView.ScaleType.CENTER, null, ::errorResponse)
+        val imgRequest = ImageRequest(
+            pokemon.imgUrl, ::imgResponse,
+            0,0,
+            ImageView.ScaleType.CENTER,
+            Bitmap.Config.ARGB_8888, ::errorResponse)
+
         queue.add(imgRequest)
 
         //Functions--------------------------------------------------------
@@ -61,7 +73,6 @@ class PokemonActivity : AppCompatActivity() {
 
     private fun imgResponse(bitmap: Bitmap?) {
         binding.pokemonImg.setImageBitmap(bitmap)
-        pokemon.imgBitmap = bitmap
     }
 
     private fun errorResponse(volleyError: VolleyError?) {
@@ -73,8 +84,18 @@ class PokemonActivity : AppCompatActivity() {
     private fun comeBack(type:Int, pokemon:Pokemon?){
         val intent = Intent(this, HomeActivity::class.java).apply {
             putExtra("type", type)
+            Log.e(">>>>>", Gson().toJson(pokemon))
             putExtra("pokemon", Gson().toJson(pokemon))
         }
         startActivity(intent)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+
+        if(keyCode== KeyEvent.KEYCODE_BACK){
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+        }
+        return true
     }
 }
