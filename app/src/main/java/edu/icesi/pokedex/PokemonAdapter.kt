@@ -34,7 +34,6 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
     }
 
     override fun show(pokemon: Pokemon) {
-        Log.e(">>>>>>>>>>>>>>>>","BUG_IS_HERE")
         listener.show(pokemon)
     }
 

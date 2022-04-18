@@ -1,5 +1,6 @@
 package edu.icesi.pokedex
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
@@ -9,7 +10,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import com.android.volley.RequestQueue
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.ImageRequest
@@ -68,7 +68,8 @@ class PokemonActivity : AppCompatActivity() {
 
         //Functions--------------------------------------------------------
         binding.pokemonCatchBtn.setOnClickListener{comeBack(HomeActivity.NEW_POKEMON, pokemon)}
-        binding.dropBtn.setOnClickListener{comeBack(HomeActivity.OLD_POKEMON, pokemon)}
+        binding.dropBtn.setOnClickListener{
+            comeBack(HomeActivity.OLD_POKEMON, pokemon)}
     }
 
     private fun imgResponse(bitmap: Bitmap?) {
@@ -80,21 +81,21 @@ class PokemonActivity : AppCompatActivity() {
         Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
     }
 
-
     private fun comeBack(type:Int, pokemon:Pokemon?){
         val intent = Intent(this, HomeActivity::class.java).apply {
             putExtra("type", type)
-            Log.e(">>>>>", Gson().toJson(pokemon))
             putExtra("pokemon", Gson().toJson(pokemon))
         }
-        startActivity(intent)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
 
-        if(keyCode== KeyEvent.KEYCODE_BACK){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
             val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
         }
         return true
     }

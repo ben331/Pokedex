@@ -71,15 +71,15 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         loadPokemons()
 
         binding.watchBtn.setOnClickListener{
-           requestNewPokemon(binding.searchTxt.text.toString(), true)
+           requestNewPokemon(binding.searchTxt.text.toString().trim().lowercase(), true)
         }
 
         binding.homeCatchBtn.setOnClickListener{
-            requestNewPokemon(binding.searchTxt.text.toString(), false)
+            requestNewPokemon(binding.searchTxt.text.toString().trim().lowercase(), false)
         }
 
         binding.searchBtn.setOnClickListener{
-            requestOldPokemon(binding.searchTxt.text.toString())
+            requestOldPokemon(binding.searchTxt.text.toString().trim().lowercase())
         }
     }
 
@@ -206,7 +206,6 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
     private fun onResultShowPokemon(result: ActivityResult) {
         val type = result.data?.extras?.getInt("type", ERROR)
         val pokemon = Gson().fromJson(result.data?.extras?.getString("pokemon","NO_DATA"), Pokemon::class.java)
-        Log.e("resutl>>>>>", result.data?.extras?.getString("pokemon","NO_DATA")!!)
         when(type){
             NEW_POKEMON-> {
                 Log.e("enter", "enter")
