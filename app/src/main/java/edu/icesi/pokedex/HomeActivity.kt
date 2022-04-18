@@ -2,8 +2,6 @@ package edu.icesi.pokedex
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.VectorDrawable
 import android.icu.util.Calendar
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +25,6 @@ import edu.icesi.pokedex.databinding.ActivityHomeBinding
 import edu.icesi.pokedex.model.Pokemon
 import edu.icesi.pokedex.model.SingleLoggedUser
 import org.json.JSONObject
-import java.io.InputStream
 
 class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
 
@@ -37,7 +34,7 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         const val NEW_POKEMON = 2
 
         const val ERROR = -1
-        const val CANCEL = 0
+        //const val CANCEL = 0
     }
 
     //Binding
@@ -156,12 +153,10 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
 
     private fun recreate(pokemon: Pokemon, type:Int) {
 
-        val imgRequest = ImageRequest(pokemon.imgUrl,
-            {
+        val imgRequest = ImageRequest(pokemon.imgUrl, {
                 pokemon.imgBitmap = it
                 if(type== NEW_POKEMON) putPokemon(pokemon)
-            }, 0,0, ImageView.ScaleType.CENTER, Bitmap.Config.ARGB_8888,
-            {
+            }, 0,0, ImageView.ScaleType.CENTER, Bitmap.Config.ARGB_8888, {
                 val msg = "Img not founded. Error:\n\n${it.message}"
                 Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
                 Log.e(">>>>>>>>>>>>", msg)

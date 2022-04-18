@@ -39,6 +39,7 @@
         android:hint="@string/holder_username"
         android:inputType="textPersonName"
         android:minHeight="48dp"
+        android:text="ben"
         android:textColorHint="#757575"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

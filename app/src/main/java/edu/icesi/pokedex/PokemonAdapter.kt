@@ -1,5 +1,6 @@
 package edu.icesi.pokedex
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +22,8 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
 
     override fun onBindViewHolder(holder: PokemonView, position: Int) {
        val pokemon = pokedex[position]
-
+        holder.pokemon = pokemon
+        holder.listener = this
         holder.itemPokemonImg.setImageBitmap(pokemon.imgBitmap!!)
         holder.itemPokemonName.text = pokemon.name
         holder.pokemonDate.text = pokemon.date.toString()
@@ -32,6 +34,7 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
     }
 
     override fun show(pokemon: Pokemon) {
+        Log.e(">>>>>>>>>>>>>>>>","BUG_IS_HERE")
         listener.show(pokemon)
     }
 
