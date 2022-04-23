@@ -30,4 +30,10 @@
     <string name="alert_exit">want to leave Pokedex?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+
+    //Error messages
+    <string name="pokemons_error">Error loading pokemons</string>
+    <string name="img_fetch_error">Image fetch error</string>
+    <string name="upload_error">Can not upload pokemon. Check internet connection</string>
+    <string name="delete_error">Can not delete pokemon. Check internet connection</string>
 </resources>

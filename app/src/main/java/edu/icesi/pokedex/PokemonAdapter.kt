@@ -1,16 +1,15 @@
 package edu.icesi.pokedex
 
-import android.util.Log
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.toolbox.StringRequest
 import edu.icesi.pokedex.model.Pokemon
-import edu.icesi.pokedex.model.SingleLoggedUser
 
 class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPokemon {
 
     private val pokedex = ArrayList<Pokemon>()
+    private val images = ArrayList<Bitmap>()
 
     lateinit var listener : PokemonView.OnShowPokemon
 
@@ -24,7 +23,7 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
        val pokemon = pokedex[position]
         holder.pokemon = pokemon
         holder.listener = this
-        holder.itemPokemonImg.setImageBitmap(pokemon.imgBitmap!!)
+        holder.itemPokemonImg.setImageBitmap(images[position])
         holder.itemPokemonName.text = pokemon.name
         holder.pokemonDate.text = pokemon.date.toString()
     }
@@ -37,14 +36,16 @@ class PokemonAdapter: RecyclerView.Adapter<PokemonView>(), PokemonView.OnShowPok
         listener.show(pokemon)
     }
 
-    fun addPokemon(pokemon:Pokemon){
+    fun addPokemon(pokemon:Pokemon, img:Bitmap){
         pokedex.add(pokemon)
+        images.add(img)
         notifyItemInserted(pokedex.size-1)
     }
 
     fun delete(pokemon: Pokemon) {
         val index = pokedex.indexOf(pokemon)
         pokedex.removeAt(index)
+        images.removeAt(index)
         notifyItemRemoved(index)
     }
 }

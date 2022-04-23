@@ -2,7 +2,6 @@ package edu.icesi.pokedex
 
 import android.view.View
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import edu.icesi.pokedex.model.Pokemon

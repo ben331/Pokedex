@@ -1,9 +1,8 @@
 package edu.icesi.pokedex
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
-import android.icu.util.Calendar
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -17,9 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.ImageRequest
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import edu.icesi.pokedex.databinding.ActivityHomeBinding
 import edu.icesi.pokedex.model.Pokemon
@@ -32,9 +32,8 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
     companion object{
         const val OLD_POKEMON = 1
         const val NEW_POKEMON = 2
-
         const val ERROR = -1
-        //const val CANCEL = 0
+        const val CANCEL = 0
     }
 
     //Binding
@@ -50,6 +49,9 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
 
     //RequestQueue of Volley
     private lateinit var queue: RequestQueue
+
+    //Database
+    private var db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,54 +70,65 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         adapter = PokemonAdapter()
         binding.pokemonList.adapter = adapter
         adapter.listener = this
+
         loadPokemons()
 
         binding.watchBtn.setOnClickListener{
            requestNewPokemon(binding.searchTxt.text.toString().trim().lowercase(), true)
+            binding.searchTxt.setText("")
         }
 
         binding.homeCatchBtn.setOnClickListener{
             requestNewPokemon(binding.searchTxt.text.toString().trim().lowercase(), false)
+            binding.searchTxt.setText("")
         }
 
         binding.searchBtn.setOnClickListener{
-            requestOldPokemon(binding.searchTxt.text.toString().trim().lowercase())
+            requestOldPokemon(binding.pokemonTxt.text.toString().trim().lowercase())
+            binding.pokemonTxt.setText("")
         }
     }
 
     private fun loadPokemons(){
-        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user?.username}.json"
-        val stringRequest = StringRequest(Request.Method.GET, url,
-            { response->
-                if(response!="null"){
-                    val hashmap = JSONObject(response)
-                    for(key in hashmap.keys()){
-                        val pokemon = Gson().fromJson(hashmap.get(key).toString(), Pokemon::class.java)
-                        recreate(pokemon, NEW_POKEMON)
-                    }
-                }
-            },{
-                val msg = "Error :\n\n${it.message}"
-                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+
+        db.collection("users").document(SingleLoggedUser.user?.username!!)
+            .collection("pokemons").orderBy("date").get()
+                .addOnSuccessListener { pokemons ->
+                    for(document in pokemons){
+                            val pokemon = document.toObject(Pokemon::class.java)
+                            loadImageAndSave(pokemon)
+                        }
+                }.addOnFailureListener {
+                val msg = "${R.string.pokemons_error}:\n${it.message}"
+                showError(msg)
                 Log.e(">>>>>>>>>>>>", msg)
             }
-        )
-        queue.add(stringRequest)
     }
 
-    private fun requestOldPokemon(pokemonName:String):Pokemon?{
-        // Request a string response from the provided URL.
-        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user!!.username}/${pokemonName}.json"
-        val stringRequest = StringRequest(Request.Method.GET, url,
-            { response ->
-                val pokemon = Gson().fromJson(response, Pokemon::class.java)
-                show(pokemon, OLD_POKEMON)
-            },
-            { })
+    private fun loadImageAndSave(pokemon: Pokemon){
+        val imgRequest = ImageRequest( pokemon.imgUrl,{ bitmap->
+            adapter.addPokemon(pokemon, bitmap)
+        },0,0, ImageView.ScaleType.CENTER, Bitmap.Config.ARGB_8888, {
+            val msg = "${R.string.img_fetch_error}:\n\n${it.message}"
+            Log.e(">>>>>>>>>>>>", msg)
+        })
+        queue.add(imgRequest)
+    }
 
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest)
-        return null
+    private fun requestOldPokemon(pokemonName:String){
+
+        db.collection("users").document(SingleLoggedUser.user!!.username)
+            .collection("pokemons").whereEqualTo("name",pokemonName).get().addOnSuccessListener {
+                for(document in it){
+                    val pokemon = document.toObject(Pokemon::class.java)
+                    show(pokemon, OLD_POKEMON)
+                    break
+                }
+            }.addOnFailureListener {
+                val msg = "${R.string.not_founded}:\n\n${it.message}"
+                showAlert(msg)
+                Log.e(">>>>>>>>>>>>", msg)
+            }
     }
 
     private fun requestNewPokemon(pokemonName:String, toShow:Boolean){
@@ -133,17 +146,14 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
                 val attack = stat?.getJSONObject(1)?.optInt("base_stat")
                 val defense = stat?.getJSONObject(2)?.optInt("base_stat")
                 val speed = stat?.getJSONObject(5)?.optInt("base_stat")
-                val date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Calendar.getInstance().time
-                } else TODO("VERSION.SDK_INT < N")
 
-                val pokemon = Pokemon(name!!, type!!, img!!, hp!!, attack!!, defense!!, speed!!, date, null, SingleLoggedUser.user!!.username)
+                val pokemon = Pokemon(name!!, type!!, img!!, hp!!, attack!!, defense!!, speed!!, SingleLoggedUser.user!!.username)
 
-                if(toShow) show(pokemon, NEW_POKEMON) else recreate(pokemon, NEW_POKEMON)
+                if(toShow) show(pokemon, NEW_POKEMON) else putPokemon(pokemon)
             },
             {
-                val msg = "Error: ${R.string.not_founded}:\n\n${it.message}"
-                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                val msg = "${R.string.not_founded}:\n\n${it.message}"
+                showAlert(msg)
                 Log.e(">>>>>>>>>>>>", msg)
             })
 
@@ -151,44 +161,29 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         queue.add(stringRequest)
     }
 
-    private fun recreate(pokemon: Pokemon, type:Int) {
+    private fun putPokemon(pokemon: Pokemon) {
 
-        val imgRequest = ImageRequest(pokemon.imgUrl, {
-                pokemon.imgBitmap = it
-                if(type== NEW_POKEMON) putPokemon(pokemon)
-            }, 0,0, ImageView.ScaleType.CENTER, Bitmap.Config.ARGB_8888, {
-                val msg = "Img not founded. Error:\n\n${it.message}"
-                Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
+        db.collection("users").document(SingleLoggedUser.user?.username!!)
+            .collection("pokemons").document(pokemon.id).set(pokemon).addOnSuccessListener {
+                loadImageAndSave(pokemon)
+            }.addOnFailureListener {
+                val msg = "${R.string.upload_error}\n${it.message}"
+                showAlert(msg)
                 Log.e(">>>>>>>>>>>>", msg)
             }
-        )
-        queue.add(imgRequest)
-    }
-
-    private fun putPokemon(pokemon: Pokemon) {
-        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user?.username}/${pokemon.name}.json"
-        val jsonObj = JSONObject(Gson().toJson(pokemon))
-        val objRequest = JsonObjectRequest(Request.Method.PUT, url, jsonObj,{
-            adapter.addPokemon(pokemon)
-        },{
-            val msg = "unshipped pokemon. Error:\n\n${it.message}"
-            Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
-            Log.e(">>>>>>>>>>>>", msg)
-        })
-        queue.add(objRequest)
     }
 
     private fun removePokemon(pokemon: Pokemon){
-        val url = "${Constants.BASE_URL}/pokemon/${SingleLoggedUser.user?.username}/${pokemon.name}.json"
-        val deleteRequest = StringRequest(Request.Method.DELETE, url,{
-            adapter.delete(pokemon)
-            Toast.makeText(this,"Pokemon was send successfully", Toast.LENGTH_LONG).show()
-        },{
-            val msg = "unshipped pokemon. Error:\n\n${it.message}"
-            Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
-            Log.e(">>>>>>>>>>>>", msg)
-        })
-        queue.add(deleteRequest)
+
+        db.collection("users").document(SingleLoggedUser.user?.username!!)
+            .collection("pokemons").document(pokemon.id).delete().addOnSuccessListener {
+                adapter.delete(pokemon)
+                Toast.makeText(this,"Pokemon was sent successfully", Toast.LENGTH_LONG).show()
+            }.addOnFailureListener {
+                val msg = "${R.string.delete_error}:\n\n${it.message}"
+                showAlert(msg)
+                Log.e(">>>>>>>>>>>>", msg)
+            }
     }
 
     private fun show(pokemon:Pokemon, type:Int){
@@ -207,13 +202,33 @@ class HomeActivity : AppCompatActivity(), PokemonView.OnShowPokemon {
         val type = result.data?.extras?.getInt("type", ERROR)
         val pokemon = Gson().fromJson(result.data?.extras?.getString("pokemon","NO_DATA"), Pokemon::class.java)
         when(type){
-            NEW_POKEMON-> {
-                Log.e("enter", "enter")
-                recreate(pokemon, type)
-            }
+            NEW_POKEMON-> putPokemon(pokemon)
             OLD_POKEMON-> removePokemon(pokemon)
+            CANCEL-> Toast.makeText(this,"Home", Toast.LENGTH_SHORT).show()
             ERROR -> Toast.makeText(this,R.string.not_founded, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun showAlert(msg:String){
+        val alert = AlertDialog.Builder(this)
+        alert.setMessage(msg)
+        alert.create()
+        alert.apply {
+            setNeutralButton("Ok"){dialog,_->dialog.dismiss()}
+        }
+        alert.show()
+    }
+
+    private fun showError(msg:String){
+        val alert = AlertDialog.Builder(this)
+        alert.setMessage("Internal error:" +
+                "\n${msg}\n\n" +
+                "Contact with Benjamin S")
+        alert.create()
+        alert.apply {
+            setNeutralButton("Ok"){ _: DialogInterface, _: Int -> finishAndRemoveTask()}
+        }
+        alert.show()
     }
 
     //-----------------------------------------------   CLOSE APP   ---------------------------------------------
